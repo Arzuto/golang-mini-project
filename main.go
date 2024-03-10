@@ -3,21 +3,21 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"golang-mini-project/controllers"
 	"golang-mini-project/database"
-
-	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
-	"github.com/joho/godotenv"
+	"os"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "aryarzt"
-	dbname   = "mini-project-go"
-)
+// const (
+// 	host     = "localhost"
+// 	port     = 5432
+// 	user     = "postgres"
+// 	password = "aryarzt"
+// 	dbname   = "mini-project-go"
+// )
 
 var (
 	DB  *sql.DB
@@ -32,8 +32,14 @@ func main() {
 	} else {
 		fmt.Println("success read file env")
 	}
-	
-	psqlInfo := fmt.Sprintf("host=%s  port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+
+	psqlInfo := fmt.Sprintf("host=%s  port=%s user=%s password=%s dbname=%s sslmode=disable",
+		os.Getenv("PGHOST"),
+		os.Getenv("PGPORT"),
+		os.Getenv("PGUSER"),
+		os.Getenv("PGPASSWORD"),
+		os.Getenv("PGDATABASE"))
+
 	DB, err = sql.Open("postgres", psqlInfo)
 	err = DB.Ping()
 
@@ -54,5 +60,5 @@ func main() {
 	router.PUT("/persons/:id", controllers.UpdatePerson)
 	router.DELETE("/persons/:id", controllers.DeletePerson)
 
-	router.Run("localhost:8080")
+	router.Run(":" + os.Getenv("PORT"))
 }
